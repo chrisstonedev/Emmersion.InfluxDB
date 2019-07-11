@@ -19,13 +19,6 @@ name: 1.0.$(Date:yyyyMMdd)$(Rev:.r)
 steps:
 - task: NuGetToolInstaller@1
 
-- task: NuGetCommand@2
-  inputs:
-    command: 'restore'
-    restoreSolution: '**/*.sln'
-    feedsToUse: 'select'
-    vstsFeed: '2ee1cde5-9787-4e91-b498-e30a43c5d914'
-    
 - task: FileTransform@1
   inputs:
     folderPath: '$(System.DefaultWorkingDirectory)/**/test-integration'
@@ -33,22 +26,20 @@ steps:
     targetFiles: '**/appsettings.json'
 
 - task: DotNetCoreCLI@2
+  displayName: 'Test'
   inputs:
     command: 'test'
-    packagesToPack: '**/EL.InfluxDB.UnitTests.csproj'
+    packagesToPack: '**/*Tests.csproj'
 
 - task: DotNetCoreCLI@2
-  inputs:
-    command: 'test'
-    packagesToPack: '**/EL.InfluxDB.IntegrationTests.csproj'
-
-- task: DotNetCoreCLI@2
+  displayName: 'Pack'
   inputs:
     command: 'pack'
     packagesToPack: '**/EL.InfluxDB.csproj'
     versioningScheme: 'byBuildNumber'
 
 - task: NuGetCommand@2
+  displayName: 'Publish'
   inputs:
     command: 'push'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
