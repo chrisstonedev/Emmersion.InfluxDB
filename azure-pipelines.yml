@@ -30,8 +30,9 @@ steps:
   inputs:
     command: 'test'
     packagesToPack: '**/*Tests.csproj'
-    feedsToUse: 'select'
-    vstsFeed: '2ee1cde5-9787-4e91-b498-e30a43c5d914'
+    selectOrConfig: 'select'
+    nuGetFeedType: 'internal'
+    feedRestore: '2ee1cde5-9787-4e91-b498-e30a43c5d914'
     includeNuGetOrg: true
 
 - task: DotNetCoreCLI@2
