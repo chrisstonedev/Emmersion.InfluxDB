@@ -14,6 +14,8 @@ variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
+name: 1.0.$(Date:yyyyMMdd)$(Rev:.r)
+
 steps:
 - task: NuGetToolInstaller@1
 
@@ -47,9 +49,6 @@ steps:
     command: 'pack'
     packagesToPack: '**/EL.InfluxDB.csproj'
     versioningScheme: 'byBuildNumber'
-    majorVersion: '1'
-    minorVersion: '0'
-    patchVersion: '0'
 
 - task: NuGetCommand@2
   inputs:
