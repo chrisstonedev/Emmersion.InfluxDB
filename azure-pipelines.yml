@@ -25,13 +25,6 @@ steps:
     restoreSolution: '**/*.sln'
     feedsToUse: 'select'
     vstsFeed: '2ee1cde5-9787-4e91-b498-e30a43c5d914'
-
-- task: VSBuild@1
-  inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
     
 - task: FileTransform@1
   inputs:
@@ -39,10 +32,15 @@ steps:
     fileType: 'json'
     targetFiles: '**/appsettings.json'
 
-- task: VSTest@2
+- task: DotNetCoreCLI@2
   inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    command: 'test'
+    packagesToPack: '**/EL.InfluxDB.UnitTests.csproj'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
+    packagesToPack: '**/EL.InfluxDB.IntegrationTests.csproj'
 
 - task: DotNetCoreCLI@2
   inputs:
