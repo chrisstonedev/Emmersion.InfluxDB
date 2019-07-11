@@ -46,7 +46,7 @@ steps:
   inputs:
     command: 'pack'
     packagesToPack: '**/EL.InfluxDB.csproj'
-    versioningScheme: 'off'
+    versioningScheme: 'byBuildNumber'
 
 - task: NuGetCommand@2
   inputs:
