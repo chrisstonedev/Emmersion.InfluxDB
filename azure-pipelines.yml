@@ -25,15 +25,19 @@ steps:
     fileType: 'json'
     targetFiles: '**/appsettings.json'
 
+- task: NuGetCommand@2
+  displayName: 'Restore from Nuget.org and EmmersionLearning feeds'
+  inputs:
+    command: 'restore'
+    restoreSolution: '**/*.sln'
+    feedsToUse: 'select'
+    vstsFeed: '2ee1cde5-9787-4e91-b498-e30a43c5d914'
+
 - task: DotNetCoreCLI@2
   displayName: 'Test'
   inputs:
     command: 'test'
     packagesToPack: '**/*Tests.csproj'
-    selectOrConfig: 'select'
-    nuGetFeedType: 'internal'
-    feedRestore: '2ee1cde5-9787-4e91-b498-e30a43c5d914'
-    includeNuGetOrg: true
 
 - task: DotNetCoreCLI@2
   displayName: 'Pack'
