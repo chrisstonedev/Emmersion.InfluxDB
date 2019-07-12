@@ -64,7 +64,7 @@ namespace EL.InfluxDB
         {
             var formattedFields = string.Join(",", point.Fields.Select(FormatOneField));
             var formattedTags = point.Tags != null ? string.Join("", point.Tags.Select(FormatOneTag)) : "";
-            var formattedTimestamp = " " + point.Timestamp.ToUnixTimeNanoseconds();
+            var formattedTimestamp = $" {point.Timestamp.ToUnixTimeNanoseconds()}";
 
             return $"{EscapeMeasurementName(point.MeasurementName)}{formattedTags} {formattedFields}{formattedTimestamp}";
         }

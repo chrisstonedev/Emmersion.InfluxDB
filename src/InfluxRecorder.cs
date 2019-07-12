@@ -28,7 +28,7 @@ namespace EL.InfluxDB
             this.logger = logger;
 
             queue = new ConcurrentQueue<string>();
-            timer = new Timer(Send, state: null, TimeSpan.FromSeconds(settings.BatchIntervalInSeconds), TimeSpan.FromSeconds(settings.BatchIntervalInSeconds));
+            timer = new Timer(Send, null, TimeSpan.FromSeconds(settings.BatchIntervalInSeconds), TimeSpan.FromSeconds(settings.BatchIntervalInSeconds));
         }
 
         public void Dispose()
