@@ -1,0 +1,21 @@
+version: '2'
+services:
+  influxdb:
+    # https://hub.docker.com/_/influxdb/
+    image: influxdb:alpine
+    ports:
+      - "8086:8086"
+    volumes:
+      - "influxdb-data:/var/lib/influxdb"
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - influxdb
+    volumes:
+      # http://docs.grafana.org/installation/docker/
+      - grafana-data:/var/lib/grafana
+volumes:
+  influxdb-data:
+  grafana-data:
