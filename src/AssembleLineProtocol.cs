@@ -6,7 +6,7 @@ namespace EL.InfluxDB
     public class InfluxPoint
     {
         public InfluxPoint(string measurementName, Field[] fields)
-            : this(measurementName, fields, null, DateTimeOffset.UtcNow)
+            : this(measurementName, fields, tags: null, DateTimeOffset.UtcNow)
         {
         }
 
@@ -16,7 +16,7 @@ namespace EL.InfluxDB
         }
 
         public InfluxPoint(string measurementName, Field[] fields, DateTimeOffset timestamp)
-            : this(measurementName, fields, null, timestamp)
+            : this(measurementName, fields, tags: null, timestamp)
         {
         }
 
