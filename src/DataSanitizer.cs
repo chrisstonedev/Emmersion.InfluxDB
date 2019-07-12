@@ -11,7 +11,6 @@ namespace EL.InfluxDB
     {
         public string SanitizeUrl(string input)
         {
-
             var sanitized = Regex.Replace(input, @"(?i)\b[A-F0-9]{8}(?:-[A-F0-9]{4}){3}-[A-F0-9]{12}\b", "{guid}");
             sanitized = Regex.Replace(sanitized, @"authenticate/.+?/truenorth", "authenticate/{id}/truenorth");
             sanitized = Regex.Replace(sanitized, @"search/.+", "search/");

@@ -5,19 +5,20 @@ namespace EL.InfluxDB
 {
     public class InfluxPoint
     {
-        public string MeasurementName { get; }
-        public DateTimeOffset Timestamp { get; }
-        public Field[] Fields { get; }
-        public Tag[] Tags { get; }
-
         public InfluxPoint(string measurementName, Field[] fields)
-            : this(measurementName, fields, null, DateTimeOffset.UtcNow) { }
+            : this(measurementName, fields, tags: null, DateTimeOffset.UtcNow)
+        {
+        }
 
         public InfluxPoint(string measurementName, Field[] fields, Tag[] tags)
-            : this(measurementName, fields, tags, DateTimeOffset.UtcNow) { }
+            : this(measurementName, fields, tags, DateTimeOffset.UtcNow)
+        {
+        }
 
         public InfluxPoint(string measurementName, Field[] fields, DateTimeOffset timestamp)
-            : this(measurementName, fields, null, timestamp) { }
+            : this(measurementName, fields, tags: null, timestamp)
+        {
+        }
 
         public InfluxPoint(string measurementName, Field[] fields, Tag[] tags, DateTimeOffset timestamp)
         {
@@ -26,30 +27,35 @@ namespace EL.InfluxDB
             Fields = fields;
             Tags = tags;
         }
+
+        public string MeasurementName { get; }
+        public DateTimeOffset Timestamp { get; }
+        public Field[] Fields { get; }
+        public Tag[] Tags { get; }
     }
 
     public class Tag
     {
-        public string Key { get; }
-        public string Value { get; }
-
         public Tag(string key, string value)
         {
             Key = key;
             Value = value;
         }
+
+        public string Key { get; }
+        public string Value { get; }
     }
 
     public class Field
     {
-        public string Key { get; }
-        public object Value { get; }
-
         public Field(string key, object value)
         {
             Key = key;
             Value = value;
         }
+
+        public string Key { get; }
+        public object Value { get; }
     }
 
     public class AssembleLineProtocol
@@ -63,7 +69,32 @@ namespace EL.InfluxDB
             return $"{EscapeMeasurementName(point.MeasurementName)}{formattedTags} {formattedFields}{formattedTimestamp}";
         }
 
-        static string FormatOneField(Field field)
+        private static string EscapeFieldKey(string s)
+        {
+            return s.Replace(",", @"\,").Replace(" ", @"\ ").Replace("=", @"\=");
+        }
+
+        private static string EscapeFieldValue(string s)
+        {
+            return s.Replace(@"""", @"\""");
+        }
+
+        private static string EscapeMeasurementName(string s)
+        {
+            return s.Replace(",", @"\,").Replace(" ", @"\ ");
+        }
+
+        private static string EscapeTagKey(string s)
+        {
+            return EscapeFieldKey(s);
+        }
+
+        private static string EscapeTagValue(string s)
+        {
+            return EscapeFieldKey(s);
+        }
+
+        private static string FormatOneField(Field field)
         {
             var fieldValueStr = IsNativeInfluxDataType(field.Value)
                 ? field.Value.ToString()
@@ -71,19 +102,15 @@ namespace EL.InfluxDB
             return $"{EscapeFieldKey(field.Key)}={fieldValueStr}";
         }
 
-        static string FormatOneTag(Tag tag) => $",{EscapeTagKey(tag.Key)}={EscapeTagValue(tag.Value)}";
+        private static string FormatOneTag(Tag tag)
+        {
+            return $",{EscapeTagKey(tag.Key)}={EscapeTagValue(tag.Value)}";
+        }
 
-        static string EscapeMeasurementName(string s) => s.Replace(",", @"\,").Replace(" ", @"\ ");
-
-        static string EscapeFieldKey(string s) => s.Replace(",", @"\,").Replace(" ", @"\ ").Replace("=", @"\=");
-
-        static string EscapeFieldValue(string s) => s.Replace(@"""", @"\""");
-
-        static string EscapeTagKey(string s) => EscapeFieldKey(s);
-
-        static string EscapeTagValue(string s) => EscapeFieldKey(s);
-
-        static bool IsNativeInfluxDataType(object value) => value is bool || IsNumeric(value);
+        private static bool IsNativeInfluxDataType(object value)
+        {
+            return value is bool || IsNumeric(value);
+        }
 
         private static bool IsNumeric(object value)
         {
@@ -106,7 +133,7 @@ namespace EL.InfluxDB
         //TODO: make platform independent. Suspicion is that this will not work on non-Windows host.
         public static long ToUnixTimeNanoseconds(this DateTimeOffset timestamp)
         {
-            var epochTicks = new DateTime(1970, 1, 1).Ticks;
+            var epochTicks = new DateTime(year: 1970, month: 1, day: 1).Ticks;
             var ticks = timestamp.Ticks - epochTicks;
             return ticks * 100;
         }

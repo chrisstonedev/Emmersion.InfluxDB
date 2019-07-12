@@ -11,8 +11,8 @@ namespace EL.InfluxDB
 
     public class Sender : ISender
     {
-        readonly InfluxSettings settings;
-        readonly IHttpClient httpClient;
+        private readonly IHttpClient httpClient;
+        private readonly InfluxSettings settings;
 
         public Sender(InfluxSettings settings, IHttpClient httpClient)
         {
@@ -22,12 +22,7 @@ namespace EL.InfluxDB
 
         public void SendPayload(string payload)
         {
-            var request = new HttpRequest()
-            {
-                Url = $"{settings.InfluxHostname}:{settings.InfluxPort }/write?db={settings.InfluxDbName}",
-                Method = HttpMethod.POST,
-                Body = payload
-            };
+            var request = new HttpRequest {Url = $"{settings.InfluxHostname}:{settings.InfluxPort}/write?db={settings.InfluxDbName}", Method = HttpMethod.POST, Body = payload};
 
             var response = httpClient.Execute(request);
 

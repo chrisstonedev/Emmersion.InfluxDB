@@ -13,13 +13,13 @@ namespace EL.InfluxDB
 
     public class InfluxRecorder : IInfluxRecorder
     {
-        readonly ISender sender;
-        readonly IInfluxLogger logger;
-
-        readonly InfluxSettings settings;
+        private readonly IInfluxLogger logger;
         private readonly ConcurrentQueue<string> queue;
+        private readonly ISender sender;
+
+        private readonly InfluxSettings settings;
         private readonly Timer timer;
-        private bool isSending = false;
+        private bool isSending;
 
         public InfluxRecorder(ISender sender, InfluxSettings settings, IInfluxLogger logger)
         {
@@ -28,14 +28,14 @@ namespace EL.InfluxDB
             this.logger = logger;
 
             queue = new ConcurrentQueue<string>();
-            timer = new Timer(Send, null, TimeSpan.FromSeconds(settings.BatchIntervalInSeconds), TimeSpan.FromSeconds(settings.BatchIntervalInSeconds));
+            timer = new Timer(Send, state: null, TimeSpan.FromSeconds(settings.BatchIntervalInSeconds), TimeSpan.FromSeconds(settings.BatchIntervalInSeconds));
         }
 
         public void Dispose()
         {
             logger.Debug("Disposing...");
             timer.Dispose();
-            Send(null);
+            Send(state: null);
         }
 
         public void Record(params InfluxPoint[] points)
@@ -45,7 +45,21 @@ namespace EL.InfluxDB
                 queue.Enqueue(AssembleLineProtocol.Assemble(point));
             }
         }
-        
+
+        private IList<string> MakeBatch()
+        {
+            var list = new List<string>();
+            while (list.Count < settings.MaxBatchSize && !queue.IsEmpty)
+            {
+                if (queue.TryDequeue(out var line))
+                {
+                    list.Add(line);
+                }
+            }
+
+            return list;
+        }
+
         private void Send(object state)
         {
             if (isSending)
@@ -54,8 +68,9 @@ namespace EL.InfluxDB
                 // Nothing breaks, but it's a bit wasteful so we use a very simple check to avoid (not prevent) it.
                 return;
             }
+
             isSending = true;
-            
+
             var lastSentCount = settings.MaxBatchSize;
             while (!queue.IsEmpty && lastSentCount >= settings.MaxBatchSize)
             {
@@ -65,26 +80,13 @@ namespace EL.InfluxDB
             isSending = false;
         }
 
-        private IList<string> MakeBatch()
-        {
-            var list = new List<string>();
-            while (list.Count < settings.MaxBatchSize && !queue.IsEmpty)
-            {
-                if (queue.TryDequeue(out string line))
-                {
-                    list.Add(line);
-                }
-            }
-            return list;
-        }
-
         private int SendBatch(IList<string> points)
         {
             if (!points.Any())
             {
                 return 0;
             }
-            
+
             try
             {
                 sender.SendPayload(string.Join("\n", points));

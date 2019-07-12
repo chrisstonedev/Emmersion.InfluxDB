@@ -8,6 +8,7 @@
             InfluxPort = influxPort;
             InfluxDbName = influxDbName;
         }
+
         public string InfluxHostname { get; }
         public int InfluxPort { get; }
         public string InfluxDbName { get; }

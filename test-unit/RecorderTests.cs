@@ -8,9 +8,9 @@ namespace EL.InfluxDB.UnitTests
 {
     public class RecorderTests
     {
+        private readonly InfluxSettings settings = new InfluxSettings("http://localhost", influxPort: 6000, "test-database");
         private InfluxRecorder classUnderTest;
         private MockSender mockSender;
-        private readonly InfluxSettings settings = new InfluxSettings("http://localhost", 6000, "test-database");
 
         [SetUp]
         public void Setup()
@@ -25,36 +25,16 @@ namespace EL.InfluxDB.UnitTests
             classUnderTest.Dispose();
         }
 
-        private void SleepOneBatchInterval()
-        {
-            Thread.Sleep(settings.BatchIntervalInSeconds * 1000 + 250);
-        }
-
         [Test]
         public void when_sending_a_single_point()
         {
             var timestamp = DateTimeOffset.Parse("2018-08-21T01:02:03Z");
-            classUnderTest.Record(new InfluxPoint("test-measurement", new[] { new Field("count", 1) }, timestamp));
-            Assert.That(mockSender.SentPayloads.Count, Is.EqualTo(0));
+            classUnderTest.Record(new InfluxPoint("test-measurement", new[] {new Field("count", value: 1)}, timestamp));
+            Assert.That(mockSender.SentPayloads.Count, Is.EqualTo(expected: 0));
 
             SleepOneBatchInterval();
-            Assert.That(mockSender.SentPayloads.Count, Is.EqualTo(1));
-            Assert.That(mockSender.SentPayloads[0], Is.EqualTo("test-measurement count=1 1534813323000000000"));
-        }
-
-        [Test]
-        public void when_sending_more_points_than_the_batch_size()
-        {
-            settings.MaxBatchSize = 5;
-            for (int i = 0; i < 11; i++)
-            {
-                classUnderTest.Record(new InfluxPoint("test-measurement", new[] { new Field("count", i) }));
-            }
-
-            Assert.That(mockSender.SentPayloads.Count, Is.EqualTo(0));
-
-            SleepOneBatchInterval();
-            Assert.That(mockSender.SentPayloads.Count, Is.EqualTo(3));
+            Assert.That(mockSender.SentPayloads.Count, Is.EqualTo(expected: 1));
+            Assert.That(mockSender.SentPayloads[index: 0], Is.EqualTo("test-measurement count=1 1534813323000000000"));
         }
 
         [Test]
@@ -65,9 +45,9 @@ namespace EL.InfluxDB.UnitTests
 
             var tasks = new[]
             {
-                Task.Factory.StartNew(() => RecordTaskPoints(1, pointsToRecordPerTask)),
-                Task.Factory.StartNew(() => RecordTaskPoints(2, pointsToRecordPerTask)),
-                Task.Factory.StartNew(() => RecordTaskPoints(3, pointsToRecordPerTask))
+                Task.Factory.StartNew(() => RecordTaskPoints(taskNumber: 1, pointsToRecordPerTask)),
+                Task.Factory.StartNew(() => RecordTaskPoints(taskNumber: 2, pointsToRecordPerTask)),
+                Task.Factory.StartNew(() => RecordTaskPoints(taskNumber: 3, pointsToRecordPerTask))
             };
 
             Task.WaitAll(tasks);
@@ -86,16 +66,36 @@ namespace EL.InfluxDB.UnitTests
             }
         }
 
+        [Test]
+        public void when_sending_more_points_than_the_batch_size()
+        {
+            settings.MaxBatchSize = 5;
+            for (var i = 0; i < 11; i++)
+            {
+                classUnderTest.Record(new InfluxPoint("test-measurement", new[] {new Field("count", i)}));
+            }
+
+            Assert.That(mockSender.SentPayloads.Count, Is.EqualTo(expected: 0));
+
+            SleepOneBatchInterval();
+            Assert.That(mockSender.SentPayloads.Count, Is.EqualTo(expected: 3));
+        }
+
         private void RecordTaskPoints(int taskNumber, int count)
         {
             for (var i = 0; i < count; i++)
             {
-                classUnderTest.Record(new InfluxPoint($"task-{taskNumber}-measurement", new[] { new Field("count", i) }));
+                classUnderTest.Record(new InfluxPoint($"task-{taskNumber}-measurement", new[] {new Field("count", i)}));
             }
+        }
+
+        private void SleepOneBatchInterval()
+        {
+            Thread.Sleep(settings.BatchIntervalInSeconds * 1000 + 250);
         }
     }
 
-    class MockSender : ISender
+    internal class MockSender : ISender
     {
         public List<string> SentPayloads = new List<string>();
 
@@ -105,16 +105,14 @@ namespace EL.InfluxDB.UnitTests
         }
     }
 
-    class StubLogger : IInfluxLogger
+    internal class StubLogger : IInfluxLogger
     {
         public void Error(string message, Exception exception)
         {
-
         }
 
         public void Debug(string message)
         {
-
         }
     }
 }

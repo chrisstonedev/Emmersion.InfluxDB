@@ -14,25 +14,28 @@ namespace EL.InfluxDB.IntegrationTests
             var classUnderTest = new Sender(new IntegrationSettings(), new HttpClient());
             classUnderTest.SendPayload(payload);
 
-            Thread.Sleep(1000);
+            Thread.Sleep(millisecondsTimeout: 1000);
 
             var influxTestClient = new InfluxTestClient();
             retrieved = influxTestClient.Query($"SELECT * FROM {testMeasurement} WHERE time >= now() - 60s");
         }
 
-        [Test]
-        public void retrieved_should_include_unique_payload() => Assert.That(retrieved.Contains(testFieldValue));
-
-        static string retrieved = string.Empty;
-        static string testFieldValue = Guid.NewGuid().ToString();
-        static string testMeasurement = $"test_measurement{Guid.NewGuid():N}";
-        static string payload = $@"{testMeasurement} field_1=""{testFieldValue}""";
+        private static string retrieved = string.Empty;
+        private static readonly string testFieldValue = Guid.NewGuid().ToString();
+        private static readonly string testMeasurement = $"test_measurement{Guid.NewGuid():N}";
+        private static readonly string payload = $@"{testMeasurement} field_1=""{testFieldValue}""";
 
         [OneTimeTearDown]
         public void TearDown()
         {
             var influxTestClient = new InfluxTestClient();
             influxTestClient.Command($"DROP MEASUREMENT {testMeasurement}");
+        }
+
+        [Test]
+        public void retrieved_should_include_unique_payload()
+        {
+            Assert.That(retrieved.Contains(testFieldValue));
         }
     }
 
@@ -45,27 +48,34 @@ namespace EL.InfluxDB.IntegrationTests
             var classUnderTest = new Sender(new IntegrationSettings(), new HttpClient());
             classUnderTest.SendPayload(payload);
 
-            Thread.Sleep(1000);
+            Thread.Sleep(millisecondsTimeout: 1000);
 
             var influxTestClient = new InfluxTestClient();
             retrieved = influxTestClient.Query($"SELECT * FROM {testMeasurement} WHERE time >= now() - 60s");
         }
 
-        [Test]
-        public void retrieved_should_include_first_field_value() => Assert.That(retrieved.Contains(testFieldValue1));
-        public void retrieved_should_include_second_field_value() => Assert.That(retrieved.Contains(testFieldValue2));
+        public void retrieved_should_include_second_field_value()
+        {
+            Assert.That(retrieved.Contains(testFieldValue2));
+        }
 
-        static string retrieved = string.Empty;
-        static string testFieldValue1 = Guid.NewGuid().ToString();
-        static string testFieldValue2 = Guid.NewGuid().ToString();
-        static string testMeasurement = $"test_measurement{Guid.NewGuid():N}";
-        static string payload = $@"{testMeasurement} field_1=""{testFieldValue1}""{Environment.NewLine}{testMeasurement} field_2=""{testFieldValue2}""";
+        private static string retrieved = string.Empty;
+        private static readonly string testFieldValue1 = Guid.NewGuid().ToString();
+        private static readonly string testFieldValue2 = Guid.NewGuid().ToString();
+        private static readonly string testMeasurement = $"test_measurement{Guid.NewGuid():N}";
+        private static readonly string payload = $@"{testMeasurement} field_1=""{testFieldValue1}""{Environment.NewLine}{testMeasurement} field_2=""{testFieldValue2}""";
 
         [OneTimeTearDown]
         public void TearDown()
         {
             var influxTestClient = new InfluxTestClient();
             influxTestClient.Command($"DROP MEASUREMENT {testMeasurement}");
+        }
+
+        [Test]
+        public void retrieved_should_include_first_field_value()
+        {
+            Assert.That(retrieved.Contains(testFieldValue1));
         }
     }
 
@@ -75,7 +85,7 @@ namespace EL.InfluxDB.IntegrationTests
         [Test]
         public void should_throw_an_exception()
         {
-            var classUnderTest = new Sender(new InfluxSettings("", 0, ""), new HttpClient());
+            var classUnderTest = new Sender(new InfluxSettings("", influxPort: 0, ""), new HttpClient());
 
             var exception = Assert.Throws<AggregateException>(() => classUnderTest.SendPayload(string.Empty));
             Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
