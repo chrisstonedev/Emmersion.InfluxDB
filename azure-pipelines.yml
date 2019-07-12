@@ -22,7 +22,7 @@ steps:
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
-    version: '2.2'
+    version: '2.2.x'
 
 - task: FileTransform@1
   inputs:
