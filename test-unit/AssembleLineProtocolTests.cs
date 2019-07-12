@@ -9,7 +9,7 @@ namespace EL.InfluxDB.UnitTests
         public void should_comma_separate_fields()
         {
             var timestamp = DateTimeOffset.UtcNow;
-            var point = new InfluxPoint("test_measurement", new[] {new Field("field1", value: 1), new Field("field2", value: 2)}, timestamp);
+            var point = new InfluxPoint("test_measurement", new[] {new Field("field1", 1), new Field("field2", 2)}, timestamp);
             var result = AssembleLineProtocol.Assemble(point);
 
             var expectedTimestamp = timestamp.ToUnixTimeNanoseconds().ToString();
@@ -20,7 +20,7 @@ namespace EL.InfluxDB.UnitTests
         public void should_escape_commas_spaces_equals_in_field_key()
         {
             var timestamp = DateTimeOffset.UtcNow;
-            var point = new InfluxPoint("test_measurement", new[] {new Field("f,i e=ld1", value: 1)}, timestamp);
+            var point = new InfluxPoint("test_measurement", new[] {new Field("f,i e=ld1", 1)}, timestamp);
             var result = AssembleLineProtocol.Assemble(point);
 
             var expectedTimestamp = timestamp.ToUnixTimeNanoseconds().ToString();
@@ -31,7 +31,7 @@ namespace EL.InfluxDB.UnitTests
         public void should_escape_commas_spaces_equals_in_tag_keys_and_tag_values()
         {
             var timestamp = DateTimeOffset.UtcNow;
-            var point = new InfluxPoint("test_measurement", new[] {new Field("field1", value: 1)}, new[] {new Tag("ta,g 1=", "app,l e=s")}, timestamp);
+            var point = new InfluxPoint("test_measurement", new[] {new Field("field1", 1)}, new[] {new Tag("ta,g 1=", "app,l e=s")}, timestamp);
             var result = AssembleLineProtocol.Assemble(point);
 
             var expectedTimestamp = timestamp.ToUnixTimeNanoseconds().ToString();
@@ -42,7 +42,7 @@ namespace EL.InfluxDB.UnitTests
         public void should_escape_commas_spaces_in_measurement_names()
         {
             var timestamp = DateTimeOffset.UtcNow;
-            var point = new InfluxPoint("test measure,ment", new[] {new Field("field1", value: 1)}, tags: null, timestamp);
+            var point = new InfluxPoint("test measure,ment", new[] {new Field("field1", 1)}, tags: null, timestamp);
             var result = AssembleLineProtocol.Assemble(point);
 
             var expectedTimestamp = timestamp.ToUnixTimeNanoseconds().ToString();
@@ -64,7 +64,7 @@ namespace EL.InfluxDB.UnitTests
         public void should_format_measurement_name_then_fields_then_timestamp()
         {
             var timestamp = DateTimeOffset.UtcNow;
-            var point = new InfluxPoint("test_measurement", new[] {new Field("field1", value: 1)}, timestamp);
+            var point = new InfluxPoint("test_measurement", new[] {new Field("field1", 1)}, timestamp);
             var result = AssembleLineProtocol.Assemble(point);
 
             var expectedTimestamp = timestamp.ToUnixTimeNanoseconds().ToString();
@@ -75,7 +75,7 @@ namespace EL.InfluxDB.UnitTests
         public void should_format_tags_after_measurement_name()
         {
             var timestamp = DateTimeOffset.UtcNow;
-            var fields = new[] {new Field("field1", value: 1)};
+            var fields = new[] {new Field("field1", 1)};
             var tags = new[] {new Tag("tag1", "apples"), new Tag("tag2", "oranges")};
             var point = new InfluxPoint("test_measurement", fields, tags, timestamp);
             var result = AssembleLineProtocol.Assemble(point);
@@ -88,7 +88,7 @@ namespace EL.InfluxDB.UnitTests
         public void should_not_quote_field_values_if_they_are_booleans()
         {
             var timestamp = DateTimeOffset.UtcNow;
-            var point = new InfluxPoint("test_measurement", new[] {new Field("field1", value: true), new Field("field2", value: false)}, timestamp);
+            var point = new InfluxPoint("test_measurement", new[] {new Field("field1", true), new Field("field2", false)}, timestamp);
 
             var result = AssembleLineProtocol.Assemble(point);
 
@@ -100,7 +100,7 @@ namespace EL.InfluxDB.UnitTests
         public void should_not_quote_field_values_if_they_are_numbers()
         {
             var timestamp = DateTimeOffset.UtcNow;
-            var point = new InfluxPoint("test_measurement", new[] {new Field("field1", value: 1L), new Field("field2", value: 32.05m)}, timestamp);
+            var point = new InfluxPoint("test_measurement", new[] {new Field("field1",  1L), new Field("field2", 32.05m)}, timestamp);
 
             var result = AssembleLineProtocol.Assemble(point);
 

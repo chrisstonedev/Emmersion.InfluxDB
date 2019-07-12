@@ -14,7 +14,7 @@ namespace EL.InfluxDB.IntegrationTests
             var classUnderTest = new Sender(new IntegrationSettings(), new HttpClient());
             classUnderTest.SendPayload(payload);
 
-            Thread.Sleep(millisecondsTimeout: 1000);
+            Thread.Sleep(1000);
 
             var influxTestClient = new InfluxTestClient();
             retrieved = influxTestClient.Query($"SELECT * FROM {testMeasurement} WHERE time >= now() - 60s");
@@ -48,7 +48,7 @@ namespace EL.InfluxDB.IntegrationTests
             var classUnderTest = new Sender(new IntegrationSettings(), new HttpClient());
             classUnderTest.SendPayload(payload);
 
-            Thread.Sleep(millisecondsTimeout: 1000);
+            Thread.Sleep(1000);
 
             var influxTestClient = new InfluxTestClient();
             retrieved = influxTestClient.Query($"SELECT * FROM {testMeasurement} WHERE time >= now() - 60s");

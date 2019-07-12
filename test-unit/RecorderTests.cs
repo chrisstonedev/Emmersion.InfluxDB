@@ -8,7 +8,7 @@ namespace EL.InfluxDB.UnitTests
 {
     public class RecorderTests
     {
-        private readonly InfluxSettings settings = new InfluxSettings("http://localhost", influxPort: 6000, "test-database");
+        private readonly InfluxSettings settings = new InfluxSettings("http://localhost", 6000, "test-database");
         private InfluxRecorder classUnderTest;
         private MockSender mockSender;
 
@@ -29,12 +29,12 @@ namespace EL.InfluxDB.UnitTests
         public void when_sending_a_single_point()
         {
             var timestamp = DateTimeOffset.Parse("2018-08-21T01:02:03Z");
-            classUnderTest.Record(new InfluxPoint("test-measurement", new[] {new Field("count", value: 1)}, timestamp));
+            classUnderTest.Record(new InfluxPoint("test-measurement", new[] {new Field("count", 1)}, timestamp));
             Assert.That(mockSender.SentPayloads.Count, Is.EqualTo(expected: 0));
 
             SleepOneBatchInterval();
             Assert.That(mockSender.SentPayloads.Count, Is.EqualTo(expected: 1));
-            Assert.That(mockSender.SentPayloads[index: 0], Is.EqualTo("test-measurement count=1 1534813323000000000"));
+            Assert.That(mockSender.SentPayloads[0], Is.EqualTo("test-measurement count=1 1534813323000000000"));
         }
 
         [Test]
@@ -45,9 +45,9 @@ namespace EL.InfluxDB.UnitTests
 
             var tasks = new[]
             {
-                Task.Factory.StartNew(() => RecordTaskPoints(taskNumber: 1, pointsToRecordPerTask)),
-                Task.Factory.StartNew(() => RecordTaskPoints(taskNumber: 2, pointsToRecordPerTask)),
-                Task.Factory.StartNew(() => RecordTaskPoints(taskNumber: 3, pointsToRecordPerTask))
+                Task.Factory.StartNew(() => RecordTaskPoints(1, pointsToRecordPerTask)),
+                Task.Factory.StartNew(() => RecordTaskPoints(2, pointsToRecordPerTask)),
+                Task.Factory.StartNew(() => RecordTaskPoints(3, pointsToRecordPerTask))
             };
 
             Task.WaitAll(tasks);
