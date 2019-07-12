@@ -19,6 +19,11 @@ name: 1.0.$(Date:yyyyMMdd)$(Rev:.r)
 steps:
 - task: NuGetToolInstaller@1
 
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '2.2'
+
 - task: FileTransform@1
   inputs:
     folderPath: '$(System.DefaultWorkingDirectory)/**/test-integration'
