@@ -11,7 +11,7 @@ namespace EL.InfluxDB.IntegrationTests
         [OneTimeSetUp]
         public void SetUp()
         {
-            var classUnderTest = new Sender(new IntegrationSettings(), new HttpClient());
+            var classUnderTest = new Sender(new IntegrationSettings(), new HttpClient(), new RequestSerializer());
             classUnderTest.SendPayload(payload);
 
             Thread.Sleep(millisecondsTimeout: 1000);
@@ -45,7 +45,7 @@ namespace EL.InfluxDB.IntegrationTests
         [OneTimeSetUp]
         public void SetUp()
         {
-            var classUnderTest = new Sender(new IntegrationSettings(), new HttpClient());
+            var classUnderTest = new Sender(new IntegrationSettings(), new HttpClient(), new RequestSerializer());
             classUnderTest.SendPayload(payload);
 
             Thread.Sleep(millisecondsTimeout: 1000);
@@ -85,7 +85,7 @@ namespace EL.InfluxDB.IntegrationTests
         [Test]
         public void should_throw_an_exception()
         {
-            var classUnderTest = new Sender(new InfluxSettings("", influxPort: 0, ""), new HttpClient());
+            var classUnderTest = new Sender(new InfluxSettings("", influxPort: 0, ""), new HttpClient(), new RequestSerializer());
 
             var exception = Assert.Throws<AggregateException>(() => classUnderTest.SendPayload(string.Empty));
             Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
@@ -99,7 +99,7 @@ namespace EL.InfluxDB.IntegrationTests
         public void should_throw_an_exception()
         {
             var httpSettings = new IntegrationSettings();
-            var classUnderTest = new Sender(httpSettings, new HttpClient());
+            var classUnderTest = new Sender(httpSettings, new HttpClient(), new RequestSerializer());
 
             Assert.Throws<Exception>(() => classUnderTest.SendPayload("this-payload-will-return-400-status-code"));
         }
