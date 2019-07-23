@@ -13,13 +13,13 @@ namespace EL.InfluxDB
 
     internal class InfluxRecorder : IInfluxRecorder
     {
+        private static readonly object timerLock = new object();
         private readonly IInfluxLogger logger;
         private readonly ConcurrentQueue<string> queue;
         private readonly ISender sender;
         private readonly IInfluxSettings settings;
-        private Timer timer;
         private bool isSending;
-        private static readonly object timerLock = new object();
+        private Timer timer;
 
         public InfluxRecorder(ISender sender, IInfluxLogger logger, IInfluxSettings settings)
         {
@@ -49,14 +49,6 @@ namespace EL.InfluxDB
             }
 
             StartTimerIfNotRunning();
-        }
-
-        private void StartTimerIfNotRunning()
-        {
-            lock (timerLock)
-            {
-                timer = timer ?? (timer = new Timer(Send, state: null, TimeSpan.FromMilliseconds(10), TimeSpan.FromSeconds(settings.BatchIntervalInSeconds)));
-            }
         }
 
         private IList<string> MakeBatch()
@@ -111,6 +103,16 @@ namespace EL.InfluxDB
             }
 
             return 0;
+        }
+
+        private void StartTimerIfNotRunning()
+        {
+            if (timer != null) return;
+
+            lock (timerLock)
+            {
+                timer = timer ?? (timer = new Timer(Send, state: null, TimeSpan.FromMilliseconds(value: 10), TimeSpan.FromSeconds(settings.BatchIntervalInSeconds)));
+            }
         }
     }
 }
