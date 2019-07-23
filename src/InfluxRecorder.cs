@@ -11,17 +11,16 @@ namespace EL.InfluxDB
         void Record(params InfluxPoint[] points);
     }
 
-    public class InfluxRecorder : IInfluxRecorder
+    internal class InfluxRecorder : IInfluxRecorder
     {
         private readonly IInfluxLogger logger;
         private readonly ConcurrentQueue<string> queue;
         private readonly ISender sender;
-
-        private readonly InfluxSettings settings;
+        private readonly IInfluxSettings settings;
         private readonly Timer timer;
         private bool isSending;
 
-        public InfluxRecorder(ISender sender, InfluxSettings settings, IInfluxLogger logger)
+        public InfluxRecorder(ISender sender, IInfluxLogger logger, IInfluxSettings settings)
         {
             this.sender = sender;
             this.settings = settings;

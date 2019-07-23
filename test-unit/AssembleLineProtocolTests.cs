@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace EL.InfluxDB.UnitTests
 {
-    public class AssembleLineProtocolTests
+    internal class AssembleLineProtocolTests : With_an_automocked<AssembleLineProtocol>
     {
         [Test]
         public void should_comma_separate_fields()
