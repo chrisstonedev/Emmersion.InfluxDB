@@ -17,9 +17,9 @@ namespace EL.InfluxDB
         private readonly ConcurrentQueue<string> queue;
         private readonly ISender sender;
         private readonly IInfluxSettings settings;
-        private readonly Timer timer;
+        private Timer timer;
         private bool isSending;
-
+        
         public InfluxRecorder(ISender sender, IInfluxLogger logger, IInfluxSettings settings)
         {
             this.sender = sender;
@@ -27,22 +27,27 @@ namespace EL.InfluxDB
             this.logger = logger;
 
             queue = new ConcurrentQueue<string>();
-            timer = new Timer(Send, state: null, TimeSpan.FromSeconds(settings.BatchIntervalInSeconds), TimeSpan.FromSeconds(settings.BatchIntervalInSeconds));
         }
 
         public void Dispose()
         {
             logger.Debug("Disposing...");
-            timer.Dispose();
+            timer?.Dispose();
             Send(state: null);
         }
 
         public void Record(params InfluxPoint[] points)
         {
+            StartTimer();
             foreach (var point in points)
             {
                 queue.Enqueue(AssembleLineProtocol.Assemble(point));
             }
+        }
+
+        private void StartTimer()
+        {
+            timer = timer ?? (timer = new Timer(Send, state: null, TimeSpan.FromSeconds(settings.BatchIntervalInSeconds), TimeSpan.FromSeconds(settings.BatchIntervalInSeconds)));
         }
 
         private IList<string> MakeBatch()

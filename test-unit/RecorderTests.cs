@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
@@ -9,11 +8,12 @@ namespace EL.InfluxDB.UnitTests
 {
     internal class RecorderTests : With_an_automocked<InfluxRecorder>
     {
-        private readonly InfluxSettings settings = new InfluxSettings("http://localhost", influxPort: 6000, "test-database") {BatchIntervalInSeconds = 0, MaxBatchSize = 5};
-
         [Test]
         public void when_sending_a_single_point()
         {
+            GetMock<IInfluxSettings>().Setup(x => x.BatchIntervalInSeconds).Returns(1);
+            GetMock<IInfluxSettings>().Setup(x => x.MaxBatchSize).Returns(5);
+
             var timestamp = DateTimeOffset.Parse("2018-08-21T01:02:03Z");
             ClassUnderTest.Record(new InfluxPoint("test-measurement", new[] {new Field("count", value: 1)}, timestamp));
 
@@ -29,7 +29,8 @@ namespace EL.InfluxDB.UnitTests
         public void when_sending_many_points_from_multiple_threads()
         {
             var pointsToRecordPerTask = 5000;
-            settings.MaxBatchSize = 10000;
+            GetMock<IInfluxSettings>().Setup(x => x.BatchIntervalInSeconds).Returns(1);
+            GetMock<IInfluxSettings>().Setup(x => x.MaxBatchSize).Returns(10000);
 
             var tasks = new[]
             {
@@ -41,14 +42,14 @@ namespace EL.InfluxDB.UnitTests
             Task.WaitAll(tasks);
             SleepOneBatchInterval();
 
-            GetMock<ISender>().Verify(x=>x.SendPayload(IsAny<string>()), Times.Exactly(1));
+            GetMock<ISender>().Verify(x=>x.SendPayload(IsAny<string>()), Times.AtLeastOnce);
 
             for (var task = 1; task <= 3; task++)
             {
                 for (var count = 0; count < pointsToRecordPerTask; count++)
                 {
                     var expected = $"task-{task}-measurement count={count}";
-                    GetMock<ISender>().Verify(x=>x.SendPayload(expected));
+                    GetMock<ISender>().Verify(x=>x.SendPayload(It.Is<string>(y=> y.Contains(expected))));
                 }
             }
         }
@@ -56,7 +57,8 @@ namespace EL.InfluxDB.UnitTests
         [Test]
         public void when_sending_more_points_than_the_batch_size()
         {
-            settings.MaxBatchSize = 5;
+            GetMock<IInfluxSettings>().Setup(x => x.BatchIntervalInSeconds).Returns(1);
+            GetMock<IInfluxSettings>().Setup(x => x.MaxBatchSize).Returns(5);
             for (var i = 0; i < 11; i++)
             {
                 ClassUnderTest.Record(new InfluxPoint("test-measurement", new[] {new Field("count", i)}));
@@ -78,7 +80,7 @@ namespace EL.InfluxDB.UnitTests
 
         private void SleepOneBatchInterval()
         {
-            Thread.Sleep(settings.BatchIntervalInSeconds * 1000 + 250);
+            Thread.Sleep(1250);
         }
     }
 }
