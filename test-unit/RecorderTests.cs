@@ -70,6 +70,19 @@ namespace EL.InfluxDB.UnitTests
             GetMock<ISender>().Verify(x=>x.SendPayload(IsAny<string>()), Times.Exactly(3));
         }
 
+        [Test]
+        public void when_recording_a_point_and_the_BatchIntervalInSeconds_is_less_than_1()
+        {
+            GetMock<IInfluxSettings>().Setup(x => x.BatchIntervalInSeconds).Returns(0);
+
+            var timestamp = DateTimeOffset.Parse("2018-08-21T01:02:03Z");
+            var caught = Assert.Catch(() => ClassUnderTest.Record(new InfluxPoint("test-measurement", new[] {new Field("count", value: 1)}, timestamp)));
+
+            Assert.That(caught, Is.TypeOf(typeof(InvalidOperationException)));
+
+            GetMock<ISender>().Verify(x=>x.SendPayload(IsAny<string>()), Times.Never);
+        }
+
         private void RecordTaskPoints(int taskNumber, int count)
         {
             for (var i = 0; i < count; i++)
