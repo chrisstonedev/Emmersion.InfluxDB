@@ -9,7 +9,7 @@ namespace EL.InfluxDB.IntegrationTests
     public class With_a_service_located_ClassUnderTest<T> where T : class
     {
         [SetUp]
-        public void SetUp()
+        public void WithAServiceLocatedSetUp()
         {
             RegisterTestSpecificServices(serviceCollection);
             _serviceProvider = serviceCollection.BuildServiceProvider();
@@ -17,7 +17,7 @@ namespace EL.InfluxDB.IntegrationTests
         }
 
         [TearDown]
-        public void TearDown()
+        public void WithAServiceLocatedTearDown()
         {
             _serviceProvider.GetService<IInfluxRecorder>().Dispose();
         }
