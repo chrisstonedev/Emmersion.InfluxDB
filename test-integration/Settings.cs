@@ -15,10 +15,13 @@ namespace EL.InfluxDB.IntegrationTests
                 .Build();
         }
 
-        public IInfluxSettings InfluxSettings => new InfluxSettings(
-            configuration.GetValue<string>("InfluxDB:Hostname"),
-            configuration.GetValue<int>("InfluxDB:Port"),
-            configuration.GetValue<string>("InfluxDB:DbName")) {BatchIntervalInSeconds = 5};
+        public IInfluxSettings InfluxSettings => new InfluxSettings
+        {
+            Hostname = configuration.GetValue<string>("InfluxDB:Hostname"),
+            Port = configuration.GetValue<int>("InfluxDB:Port"),
+            DbName = configuration.GetValue<string>("InfluxDB:DbName"),
+            BatchIntervalInSeconds = 5
+        };
 
         public T GetRequiredSetting<T>(string name)
         {

@@ -13,7 +13,7 @@ namespace EL.InfluxDB.IntegrationTests
         {
             var httpClient = GetInstance<IHttpClient>();
             var settings = GetInstance<Settings>();
-            var uri = $"{settings.InfluxSettings.InfluxHostname}:{settings.InfluxSettings.InfluxPort}/query?db={settings.InfluxSettings.InfluxDbName}&q={query}";
+            var uri = $"{settings.InfluxSettings.Hostname}:{settings.InfluxSettings.Port}/query?db={settings.InfluxSettings.DbName}&q={query}";
             var message = new HttpRequestMessage(HttpMethod.Get, uri) {Content = new StringContent(payload, Encoding.UTF8)};
 
             return httpClient.Execute(message).Item2;
@@ -23,6 +23,11 @@ namespace EL.InfluxDB.IntegrationTests
     [TestFixture]
     internal class when_sending_payload_over_http : With_a_base_sender_test
     {
+        private static string retrieved;
+        private static string testFieldValue;
+        private static string testMeasurement;
+        private static string payload;
+
         [SetUp]
         public void SetUp()
         {
@@ -37,11 +42,6 @@ namespace EL.InfluxDB.IntegrationTests
 
             retrieved = ExecuteInfluxQuery($"SELECT * FROM {testMeasurement} WHERE time >= now() - 60s", payload);
         }
-
-        private static string retrieved;
-        private static string testFieldValue;
-        private static string testMeasurement;
-        private static string payload;
 
         [TearDown]
         public void TearDown()
@@ -59,6 +59,12 @@ namespace EL.InfluxDB.IntegrationTests
     [TestFixture]
     internal class when_sending_multi_line_payload_over_http : With_a_base_sender_test
     {
+        private static string retrieved;
+        private static string testFieldValue1;
+        private static string testFieldValue2;
+        private static string testMeasurement;
+        private static string payload;
+
         [SetUp]
         public void SetUp()
         {
@@ -74,12 +80,6 @@ namespace EL.InfluxDB.IntegrationTests
 
             retrieved = ExecuteInfluxQuery($"SELECT * FROM {testMeasurement} WHERE time >= now() - 60s", payload);
         }
-
-        private static string retrieved;
-        private static string testFieldValue1;
-        private static string testFieldValue2;
-        private static string testMeasurement;
-        private static string payload;
 
         [TearDown]
         public void TearDown()
@@ -106,7 +106,7 @@ namespace EL.InfluxDB.IntegrationTests
         [Test]
         public void should_throw_an_exception()
         {
-            var classUnderTest = new Sender(new HttpClient(), new InfluxSettings("", influxPort: 0, ""));
+            var classUnderTest = new Sender(new HttpClient(), new InfluxSettings {Hostname = "", Port = 0, DbName = ""});
 
             var exception = Assert.Throws<AggregateException>(() => classUnderTest.SendPayload(string.Empty));
             Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());

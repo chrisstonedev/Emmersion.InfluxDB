@@ -23,7 +23,7 @@ namespace EL.InfluxDB
         public void SendPayload(string payload)
         {
             var content = new StringContent(payload, Encoding.UTF8);
-            var message = new HttpRequestMessage(HttpMethod.Post, settings.ConnectionString) {Content = content};
+            var message = new HttpRequestMessage(HttpMethod.Post, $"{settings.Hostname}:{settings.Port}/write?db={settings.DbName}") {Content = content};
 
             (int statusCode, string reponseBody) response;
             try
