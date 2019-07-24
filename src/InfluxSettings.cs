@@ -1,6 +1,16 @@
 ﻿namespace EL.InfluxDB
 {
-    public class InfluxSettings
+    public interface IInfluxSettings
+    {
+        string InfluxHostname { get; }
+        int InfluxPort { get; }
+        string InfluxDbName { get; }
+        int BatchIntervalInSeconds { get; set; }
+        int MaxBatchSize { get; set; }
+        string ConnectionString { get; }
+    }
+
+    internal class InfluxSettings : IInfluxSettings
     {
         public InfluxSettings(string influxHostName, int influxPort, string influxDbName)
         {
@@ -14,5 +24,6 @@
         public string InfluxDbName { get; }
         public int BatchIntervalInSeconds { get; set; } = 1;
         public int MaxBatchSize { get; set; } = 10000;
+        public string ConnectionString => $"{InfluxHostname}:{InfluxPort}/write?db={InfluxDbName}";
     }
 }

@@ -2,12 +2,14 @@
 
 namespace EL.InfluxDB
 {
-    public interface IDataSanitizer
+    
+    internal interface IDataSanitizer
     {
         string SanitizeUrl(string input);
     }
 
-    public class DataSanitizer : IDataSanitizer
+    
+    internal class DataSanitizer : IDataSanitizer
     {
         public string SanitizeUrl(string input)
         {

@@ -11,30 +11,33 @@ namespace EL.InfluxDB
         void Record(params InfluxPoint[] points);
     }
 
-    public class InfluxRecorder : IInfluxRecorder
+    internal class InfluxRecorder : IInfluxRecorder
     {
+        private static readonly object timerLock = new object();
         private readonly IInfluxLogger logger;
         private readonly ConcurrentQueue<string> queue;
         private readonly ISender sender;
-
-        private readonly InfluxSettings settings;
-        private readonly Timer timer;
+        private readonly IInfluxSettings settings;
         private bool isSending;
+        private Timer timer;
 
-        public InfluxRecorder(ISender sender, InfluxSettings settings, IInfluxLogger logger)
+        public InfluxRecorder(ISender sender, IInfluxLogger logger, IInfluxSettings settings)
         {
             this.sender = sender;
             this.settings = settings;
             this.logger = logger;
 
             queue = new ConcurrentQueue<string>();
-            timer = new Timer(Send, state: null, TimeSpan.FromSeconds(settings.BatchIntervalInSeconds), TimeSpan.FromSeconds(settings.BatchIntervalInSeconds));
+            if (settings.BatchIntervalInSeconds < 1)
+            {
+                throw new InvalidOperationException("IInfluxSettings.BatchIntervalInSeconds must be no less than 1.");
+            }
         }
 
         public void Dispose()
         {
             logger.Debug("Disposing...");
-            timer.Dispose();
+            timer?.Dispose();
             Send(state: null);
         }
 
@@ -44,6 +47,8 @@ namespace EL.InfluxDB
             {
                 queue.Enqueue(AssembleLineProtocol.Assemble(point));
             }
+
+            StartTimerIfNotRunning();
         }
 
         private IList<string> MakeBatch()
@@ -98,6 +103,16 @@ namespace EL.InfluxDB
             }
 
             return 0;
+        }
+
+        private void StartTimerIfNotRunning()
+        {
+            if (timer != null) return;
+
+            lock (timerLock)
+            {
+                timer = timer ?? (timer = new Timer(Send, state: null, TimeSpan.FromMilliseconds(value: 10), TimeSpan.FromSeconds(settings.BatchIntervalInSeconds)));
+            }
         }
     }
 }

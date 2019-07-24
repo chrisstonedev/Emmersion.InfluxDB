@@ -1,35 +1,43 @@
 ﻿using System;
-using EL.Http;
+using System.Net.Http;
+using System.Text;
 
 namespace EL.InfluxDB
 {
-    public interface ISender
+    internal interface ISender
     {
         void SendPayload(string payload);
     }
 
-    public class Sender : ISender
+    internal class Sender : ISender
     {
         private readonly IHttpClient httpClient;
-        private readonly IRequestSerializer requestSerializer;
-        private readonly InfluxSettings settings;
+        private readonly IInfluxSettings settings;
 
-        public Sender(InfluxSettings settings, IHttpClient httpClient, IRequestSerializer requestSerializer)
+        public Sender(IHttpClient httpClient, IInfluxSettings settings)
         {
             this.settings = settings;
             this.httpClient = httpClient;
-            this.requestSerializer = requestSerializer;
         }
 
         public void SendPayload(string payload)
         {
-            var request = new HttpRequest {Url = $"{settings.InfluxHostname}:{settings.InfluxPort}/write?db={settings.InfluxDbName}", Method = HttpMethod.POST, Body = payload};
+            var content = new StringContent(payload, Encoding.UTF8);
+            var message = new HttpRequestMessage(HttpMethod.Post, settings.ConnectionString) {Content = content};
 
-            var response = httpClient.Execute(request);
-
-            if (response.StatusCode != 204)
+            (int statusCode, string reponseBody) response;
+            try
             {
-                throw new Exception($"Failed to write metrics (influxUrl: {request.Url}, response: {requestSerializer.SerializeBody(response)})");
+                response = httpClient.Execute(message);
+            }
+            catch (Exception e)
+            {
+                throw new AggregateException("Could not send points", e);
+            }
+
+            if (response.statusCode != 204)
+            {
+                throw new Exception($"Failed to write metrics (influxUrl: {message.RequestUri}, response: {response.reponseBody})");
             }
         }
     }

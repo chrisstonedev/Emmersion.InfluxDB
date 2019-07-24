@@ -1,35 +1,52 @@
 ﻿using System;
+using System.Net.Http;
+using System.Text;
 using System.Threading;
-using EL.Http;
 using NUnit.Framework;
 
 namespace EL.InfluxDB.IntegrationTests
 {
     [TestFixture]
-    public class when_sending_payload_over_http
+    internal class With_a_base_sender_test : With_a_service_located_ClassUnderTest<Sender>
     {
-        [OneTimeSetUp]
+        protected string ExecuteInfluxQuery(string query, string payload)
+        {
+            var httpClient = GetInstance<IHttpClient>();
+            var settings = GetInstance<Settings>();
+            var uri = $"{settings.InfluxSettings.InfluxHostname}:{settings.InfluxSettings.InfluxPort}/query?db={settings.InfluxSettings.InfluxDbName}&q={query}";
+            var message = new HttpRequestMessage(HttpMethod.Get, uri) {Content = new StringContent(payload, Encoding.UTF8)};
+
+            return httpClient.Execute(message).Item2;
+        }
+    }
+
+    [TestFixture]
+    internal class when_sending_payload_over_http : With_a_base_sender_test
+    {
+        [SetUp]
         public void SetUp()
         {
-            var classUnderTest = new Sender(new IntegrationSettings(), new HttpClient(), new RequestSerializer());
-            classUnderTest.SendPayload(payload);
+            retrieved = string.Empty;
+            testFieldValue = Guid.NewGuid().ToString();
+            testMeasurement = $"test_measurement{Guid.NewGuid():N}";
+            payload = $@"{testMeasurement} field_1=""{testFieldValue}""";
+
+            ClassUnderTest.SendPayload(payload);
 
             Thread.Sleep(millisecondsTimeout: 1000);
 
-            var influxTestClient = new InfluxTestClient();
-            retrieved = influxTestClient.Query($"SELECT * FROM {testMeasurement} WHERE time >= now() - 60s");
+            retrieved = ExecuteInfluxQuery($"SELECT * FROM {testMeasurement} WHERE time >= now() - 60s", payload);
         }
 
-        private static string retrieved = string.Empty;
-        private static readonly string testFieldValue = Guid.NewGuid().ToString();
-        private static readonly string testMeasurement = $"test_measurement{Guid.NewGuid():N}";
-        private static readonly string payload = $@"{testMeasurement} field_1=""{testFieldValue}""";
+        private static string retrieved;
+        private static string testFieldValue;
+        private static string testMeasurement;
+        private static string payload;
 
-        [OneTimeTearDown]
+        [TearDown]
         public void TearDown()
         {
-            var influxTestClient = new InfluxTestClient();
-            influxTestClient.Command($"DROP MEASUREMENT {testMeasurement}");
+            retrieved = ExecuteInfluxQuery($"DROP MEASUREMENT {testMeasurement}", payload);
         }
 
         [Test]
@@ -40,36 +57,34 @@ namespace EL.InfluxDB.IntegrationTests
     }
 
     [TestFixture]
-    public class when_sending_multi_line_payload_over_http
+    internal class when_sending_multi_line_payload_over_http : With_a_base_sender_test
     {
-        [OneTimeSetUp]
+        [SetUp]
         public void SetUp()
         {
-            var classUnderTest = new Sender(new IntegrationSettings(), new HttpClient(), new RequestSerializer());
-            classUnderTest.SendPayload(payload);
+            retrieved = string.Empty;
+            testFieldValue1 = Guid.NewGuid().ToString();
+            testFieldValue2 = Guid.NewGuid().ToString();
+            testMeasurement = $"test_measurement{Guid.NewGuid():N}";
+            payload = $@"{testMeasurement} field_1=""{testFieldValue1}""{Environment.NewLine}{testMeasurement} field_2=""{testFieldValue2}""";
+
+            ClassUnderTest.SendPayload(payload);
 
             Thread.Sleep(millisecondsTimeout: 1000);
 
-            var influxTestClient = new InfluxTestClient();
-            retrieved = influxTestClient.Query($"SELECT * FROM {testMeasurement} WHERE time >= now() - 60s");
+            retrieved = ExecuteInfluxQuery($"SELECT * FROM {testMeasurement} WHERE time >= now() - 60s", payload);
         }
 
-        public void retrieved_should_include_second_field_value()
-        {
-            Assert.That(retrieved.Contains(testFieldValue2));
-        }
+        private static string retrieved;
+        private static string testFieldValue1;
+        private static string testFieldValue2;
+        private static string testMeasurement;
+        private static string payload;
 
-        private static string retrieved = string.Empty;
-        private static readonly string testFieldValue1 = Guid.NewGuid().ToString();
-        private static readonly string testFieldValue2 = Guid.NewGuid().ToString();
-        private static readonly string testMeasurement = $"test_measurement{Guid.NewGuid():N}";
-        private static readonly string payload = $@"{testMeasurement} field_1=""{testFieldValue1}""{Environment.NewLine}{testMeasurement} field_2=""{testFieldValue2}""";
-
-        [OneTimeTearDown]
+        [TearDown]
         public void TearDown()
         {
-            var influxTestClient = new InfluxTestClient();
-            influxTestClient.Command($"DROP MEASUREMENT {testMeasurement}");
+            retrieved = ExecuteInfluxQuery($"DROP MEASUREMENT {testMeasurement}", payload);
         }
 
         [Test]
@@ -77,15 +92,21 @@ namespace EL.InfluxDB.IntegrationTests
         {
             Assert.That(retrieved.Contains(testFieldValue1));
         }
+
+        [Test]
+        public void retrieved_should_include_second_field_value()
+        {
+            Assert.That(retrieved.Contains(testFieldValue2));
+        }
     }
 
     [TestFixture]
-    public class when_sending_payload_over_http_with_bad_settings
+    internal class when_sending_payload_over_http_with_bad_settings
     {
         [Test]
         public void should_throw_an_exception()
         {
-            var classUnderTest = new Sender(new InfluxSettings("", influxPort: 0, ""), new HttpClient(), new RequestSerializer());
+            var classUnderTest = new Sender(new HttpClient(), new InfluxSettings("", influxPort: 0, ""));
 
             var exception = Assert.Throws<AggregateException>(() => classUnderTest.SendPayload(string.Empty));
             Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
@@ -93,15 +114,12 @@ namespace EL.InfluxDB.IntegrationTests
     }
 
     [TestFixture]
-    public class when_sending_payload_over_http_returns_unexpected_status_code
+    internal class when_sending_payload_over_http_returns_unexpected_status_code : With_a_base_sender_test
     {
         [Test]
         public void should_throw_an_exception()
         {
-            var httpSettings = new IntegrationSettings();
-            var classUnderTest = new Sender(httpSettings, new HttpClient(), new RequestSerializer());
-
-            Assert.Throws<Exception>(() => classUnderTest.SendPayload("this-payload-will-return-400-status-code"));
+            Assert.Throws<Exception>(() => ClassUnderTest.SendPayload("this-payload-will-return-400-status-code"));
         }
     }
 }

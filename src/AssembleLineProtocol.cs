@@ -1,65 +1,12 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace EL.InfluxDB
 {
-    public class InfluxPoint
+    internal class AssembleLineProtocol
     {
-        public InfluxPoint(string measurementName, Field[] fields)
-            : this(measurementName, fields, tags: null, DateTimeOffset.UtcNow)
-        {
-        }
-
-        public InfluxPoint(string measurementName, Field[] fields, Tag[] tags)
-            : this(measurementName, fields, tags, DateTimeOffset.UtcNow)
-        {
-        }
-
-        public InfluxPoint(string measurementName, Field[] fields, DateTimeOffset timestamp)
-            : this(measurementName, fields, tags: null, timestamp)
-        {
-        }
-
-        public InfluxPoint(string measurementName, Field[] fields, Tag[] tags, DateTimeOffset timestamp)
-        {
-            MeasurementName = measurementName;
-            Timestamp = timestamp;
-            Fields = fields;
-            Tags = tags;
-        }
-
-        public string MeasurementName { get; }
-        public DateTimeOffset Timestamp { get; }
-        public Field[] Fields { get; }
-        public Tag[] Tags { get; }
-    }
-
-    public class Tag
-    {
-        public Tag(string key, string value)
-        {
-            Key = key;
-            Value = value;
-        }
-
-        public string Key { get; }
-        public string Value { get; }
-    }
-
-    public class Field
-    {
-        public Field(string key, object value)
-        {
-            Key = key;
-            Value = value;
-        }
-
-        public string Key { get; }
-        public object Value { get; }
-    }
-
-    public class AssembleLineProtocol
-    {
+        
         public static string Assemble(InfluxPoint point)
         {
             var formattedFields = string.Join(",", point.Fields.Select(FormatOneField));
@@ -128,10 +75,12 @@ namespace EL.InfluxDB
         }
     }
 
-    public static class DateTimeExtensions
+    
+    internal static class DateTimeExtensions
     {
         //TODO: make platform independent. Suspicion is that this will not work on non-Windows host.
-        public static long ToUnixTimeNanoseconds(this DateTimeOffset timestamp)
+        
+        internal static long ToUnixTimeNanoseconds(this DateTimeOffset timestamp)
         {
             var epochTicks = new DateTime(year: 1970, month: 1, day: 1).Ticks;
             var ticks = timestamp.Ticks - epochTicks;
