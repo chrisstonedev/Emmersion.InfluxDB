@@ -27,6 +27,16 @@ namespace EL.InfluxDB
             this.settings = settings;
             this.logger = logger;
 
+            if (settings.BatchIntervalInSeconds < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(settings.BatchIntervalInSeconds), "Value must not be less than 1.");
+            }
+
+            if (settings.MaxBatchSize < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(settings.MaxBatchSize), "Value must not be less than 1.");
+            }
+
             queue = new ConcurrentQueue<string>();
         }
 
@@ -107,10 +117,6 @@ namespace EL.InfluxDB
 
             lock (timerLock)
             {
-                if (settings.BatchIntervalInSeconds < 1)
-                {
-                    throw new InvalidOperationException("IInfluxSettings.BatchIntervalInSeconds must be no less than 1.");
-                }
                 timer = timer ?? (timer = new Timer(Send, state: null, TimeSpan.FromMilliseconds(10), TimeSpan.FromSeconds(settings.BatchIntervalInSeconds)));
             }
         }
