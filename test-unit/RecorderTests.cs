@@ -81,7 +81,7 @@ namespace EL.InfluxDB.UnitTests
             var caught = Assert.Catch(() => ClassUnderTest.Record(new InfluxPoint("test-measurement", new[] { new Field("count", value: 1) }, timestamp)));
 
             Assert.That(caught.InnerException, Is.TypeOf(typeof(ArgumentOutOfRangeException)));
-            Assert.That(caught.InnerException.Message, Is.EqualTo("Value must not be less than 1.\nParameter name: BatchIntervalInSeconds"));
+            Assert.That(caught.InnerException.Message, Is.EqualTo($"Value must not be less than 1.{Environment.NewLine}Parameter name: BatchIntervalInSeconds"));
 
             GetMock<ISender>().Verify(x => x.SendPayload(IsAny<string>()), Times.Never);
         }
@@ -96,7 +96,7 @@ namespace EL.InfluxDB.UnitTests
             var caught = Assert.Catch(() => ClassUnderTest.Record(new InfluxPoint("test-measurement", new[] { new Field("count", value: 1) }, timestamp)));
 
             Assert.That(caught.InnerException, Is.TypeOf(typeof(ArgumentOutOfRangeException)));
-            Assert.That(caught.InnerException.Message, Is.EqualTo("Value must not be less than 1.\nParameter name: MaxBatchSize"));
+            Assert.That(caught.InnerException.Message, Is.EqualTo($"Value must not be less than 1.{Environment.NewLine}Parameter name: MaxBatchSize"));
 
             GetMock<ISender>().Verify(x => x.SendPayload(IsAny<string>()), Times.Never);
         }
