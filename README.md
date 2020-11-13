@@ -7,7 +7,8 @@ To configure DI, call `EL.InfluxDB.DependencyInjectionConfig.ConfigureServices(s
 
 Then you can record data to Influx by injecting an `IInfluxRecorder`.
 Here is a simple example:
-```
+
+```csharp
 var fields = new [] {
     new Field("count", 1),
     new Field("duration-ms", 123)
