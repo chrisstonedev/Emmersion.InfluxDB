@@ -26,7 +26,7 @@ steps:
 
 - task: FileTransform@1
   inputs:
-    folderPath: '$(System.DefaultWorkingDirectory)/**/test-integration'
+    folderPath: '$(System.DefaultWorkingDirectory)/**/EL.InfluxDB.IntegrationTests'
     fileType: 'json'
     targetFiles: '**/appsettings.json'
 
