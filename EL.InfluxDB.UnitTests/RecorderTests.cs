@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using EL.Testing;
 using Moq;
 using NUnit.Framework;
 
@@ -17,7 +18,7 @@ namespace EL.InfluxDB.UnitTests
             var timestamp = DateTimeOffset.Parse("2018-08-21T01:02:03Z");
             ClassUnderTest.Record(new InfluxPoint("test-measurement", new[] { new Field("count", value: 1) }, timestamp));
 
-            GetMock<ISender>().Verify(x => x.SendPayload(IsAny<string>()), Times.Never);
+            GetMock<ISender>().VerifyNever(x => x.SendPayload(IsAny<string>()));
 
             SleepOneBatchInterval();
 
@@ -65,7 +66,7 @@ namespace EL.InfluxDB.UnitTests
                 ClassUnderTest.Record(new InfluxPoint("test-measurement", new[] { new Field("count", i) }));
             }
 
-            GetMock<ISender>().Verify(x => x.SendPayload(IsAny<string>()), Times.Never);
+            GetMock<ISender>().VerifyNever(x => x.SendPayload(IsAny<string>()));
 
             SleepOneBatchInterval();
             GetMock<ISender>().Verify(x => x.SendPayload(IsAny<string>()), Times.Exactly(3));
@@ -81,9 +82,9 @@ namespace EL.InfluxDB.UnitTests
             var caught = Assert.Catch(() => ClassUnderTest.Record(new InfluxPoint("test-measurement", new[] { new Field("count", value: 1) }, timestamp)));
 
             Assert.That(caught.InnerException, Is.TypeOf(typeof(ArgumentOutOfRangeException)));
-            Assert.That(caught.InnerException.Message, Is.EqualTo($"Value must not be less than 1.{Environment.NewLine}Parameter name: BatchIntervalInSeconds"));
+            Assert.That(caught.InnerException.Message, Is.EqualTo($"Value must not be less than 1. (Parameter 'BatchIntervalInSeconds')"));
 
-            GetMock<ISender>().Verify(x => x.SendPayload(IsAny<string>()), Times.Never);
+            GetMock<ISender>().VerifyNever(x => x.SendPayload(IsAny<string>()));
         }
 
         [Test]
@@ -96,9 +97,9 @@ namespace EL.InfluxDB.UnitTests
             var caught = Assert.Catch(() => ClassUnderTest.Record(new InfluxPoint("test-measurement", new[] { new Field("count", value: 1) }, timestamp)));
 
             Assert.That(caught.InnerException, Is.TypeOf(typeof(ArgumentOutOfRangeException)));
-            Assert.That(caught.InnerException.Message, Is.EqualTo($"Value must not be less than 1.{Environment.NewLine}Parameter name: MaxBatchSize"));
+            Assert.That(caught.InnerException.Message, Is.EqualTo($"Value must not be less than 1. (Parameter 'MaxBatchSize')"));
 
-            GetMock<ISender>().Verify(x => x.SendPayload(IsAny<string>()), Times.Never);
+            GetMock<ISender>().VerifyNever(x => x.SendPayload(IsAny<string>()));
         }
 
         private void RecordTaskPoints(int taskNumber, int count)
