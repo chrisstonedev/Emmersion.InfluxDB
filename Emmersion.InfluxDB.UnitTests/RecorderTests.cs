@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EL.Testing;
+using Emmersion.Testing;
 using Moq;
 using NUnit.Framework;
 
@@ -80,11 +80,22 @@ namespace Emmersion.InfluxDB.UnitTests
 
             var timestamp = DateTimeOffset.Parse("2018-08-21T01:02:03Z");
             var caught = Assert.Catch(() => ClassUnderTest.Record(new InfluxPoint("test-measurement", new[] { new Field("count", value: 1) }, timestamp)));
-
-            Assert.That(caught.InnerException, Is.TypeOf(typeof(ArgumentOutOfRangeException)));
-            Assert.That(caught.InnerException.Message, Is.EqualTo($"Value must not be less than 1. (Parameter 'BatchIntervalInSeconds')"));
+            
+            var innerException = FindInnerArgumentOutOfRangeException(caught);
+            Assert.That(innerException, Is.TypeOf(typeof(ArgumentOutOfRangeException)));
+            Assert.That(innerException.Message, Is.EqualTo($"Value must not be less than 1. (Parameter 'BatchIntervalInSeconds')"));
 
             GetMock<ISender>().VerifyNever(x => x.SendPayload(IsAny<string>()));
+        }
+
+        private Exception FindInnerArgumentOutOfRangeException(Exception exception)
+        {
+            while (exception != null && !(exception is ArgumentOutOfRangeException))
+            {
+                exception = exception.InnerException;
+            }
+
+            return exception;
         }
 
         [Test]
@@ -96,8 +107,9 @@ namespace Emmersion.InfluxDB.UnitTests
             var timestamp = DateTimeOffset.Parse("2018-08-21T01:02:03Z");
             var caught = Assert.Catch(() => ClassUnderTest.Record(new InfluxPoint("test-measurement", new[] { new Field("count", value: 1) }, timestamp)));
 
-            Assert.That(caught.InnerException, Is.TypeOf(typeof(ArgumentOutOfRangeException)));
-            Assert.That(caught.InnerException.Message, Is.EqualTo($"Value must not be less than 1. (Parameter 'MaxBatchSize')"));
+            var innerException = FindInnerArgumentOutOfRangeException(caught);
+            Assert.That(innerException, Is.TypeOf(typeof(ArgumentOutOfRangeException)));
+            Assert.That(innerException.Message, Is.EqualTo($"Value must not be less than 1. (Parameter 'MaxBatchSize')"));
 
             GetMock<ISender>().VerifyNever(x => x.SendPayload(IsAny<string>()));
         }

@@ -1,5 +1,5 @@
 ﻿using System;
-using EL.Testing;
+using Emmersion.Testing;
 using NUnit.Framework;
 
 namespace Emmersion.InfluxDB.UnitTests
