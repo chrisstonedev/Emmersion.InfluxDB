@@ -1,8 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
 
-[assembly: InternalsVisibleTo("EL.InfluxDB.UnitTests")]
-[assembly: InternalsVisibleTo("EL.InfluxDB.IntegrationTests")]
+[assembly: InternalsVisibleTo("Emmersion.InfluxDB.UnitTests")]
+[assembly: InternalsVisibleTo("Emmersion.InfluxDB.IntegrationTests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 namespace EL.InfluxDB
 {
