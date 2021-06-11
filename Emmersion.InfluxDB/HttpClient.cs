@@ -4,7 +4,7 @@ namespace Emmersion.InfluxDB
 {
     internal interface IHttpClient
     {
-        (int statusCode, string reponseBody) Execute(HttpRequestMessage request);
+        (int statusCode, string responseBody) Execute(HttpRequestMessage request);
     }
 
     internal class HttpClient : IHttpClient
@@ -16,7 +16,7 @@ namespace Emmersion.InfluxDB
             client = new System.Net.Http.HttpClient();
         }
 
-        public (int statusCode, string reponseBody) Execute(HttpRequestMessage request)
+        public (int statusCode, string responseBody) Execute(HttpRequestMessage request)
         {
             var response = client.SendAsync(request).Result;
             return ((int) response.StatusCode, response.Content.ReadAsStringAsync().Result);

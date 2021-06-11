@@ -25,7 +25,7 @@ namespace Emmersion.InfluxDB
             var content = new StringContent(payload, Encoding.UTF8);
             var message = new HttpRequestMessage(HttpMethod.Post, $"{settings.Hostname}:{settings.Port}/write?db={settings.DbName}") {Content = content};
 
-            (int statusCode, string reponseBody) response;
+            (int statusCode, string responseBody) response;
             try
             {
                 response = httpClient.Execute(message);
@@ -37,7 +37,7 @@ namespace Emmersion.InfluxDB
 
             if (response.statusCode != 204)
             {
-                throw new Exception($"Failed to write metrics (influxUrl: {message.RequestUri}, response: {response.reponseBody})");
+                throw new Exception($"Failed to write metrics (influxUrl: {message.RequestUri}, response: {response.responseBody})");
             }
         }
     }
