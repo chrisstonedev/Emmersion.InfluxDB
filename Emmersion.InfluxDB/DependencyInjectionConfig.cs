@@ -11,7 +11,6 @@ namespace Emmersion.InfluxDB
     {
         public static void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<IDataSanitizer, DataSanitizer>();
             services.AddSingleton<IHttpClient, HttpClient>();
             services.AddTransient<ISender, Sender>();
             services.AddSingleton<IInfluxRecorder, InfluxRecorder>();
