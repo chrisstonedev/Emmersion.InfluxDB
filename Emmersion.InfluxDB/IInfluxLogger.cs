@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EL.InfluxDB
+namespace Emmersion.InfluxDB
 {
     public interface IInfluxLogger
     {

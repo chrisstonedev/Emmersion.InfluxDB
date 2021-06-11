@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace EL.InfluxDB
+namespace Emmersion.InfluxDB
 {
     
     internal interface IDataSanitizer

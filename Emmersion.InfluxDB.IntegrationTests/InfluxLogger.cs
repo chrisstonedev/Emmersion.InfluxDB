@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EL.InfluxDB.IntegrationTests
+namespace Emmersion.InfluxDB.IntegrationTests
 {
     public class InfluxLogger : IInfluxLogger
     {

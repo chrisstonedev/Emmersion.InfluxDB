@@ -1,4 +1,4 @@
-﻿namespace EL.InfluxDB
+﻿namespace Emmersion.InfluxDB
 {
     public class Tag
     {

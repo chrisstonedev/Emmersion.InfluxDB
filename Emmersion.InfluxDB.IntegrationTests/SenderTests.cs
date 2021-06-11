@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading;
 using NUnit.Framework;
 
-namespace EL.InfluxDB.IntegrationTests
+namespace Emmersion.InfluxDB.IntegrationTests
 {
     [TestFixture]
     internal class With_a_base_sender_test : With_a_service_located_ClassUnderTest<Sender>

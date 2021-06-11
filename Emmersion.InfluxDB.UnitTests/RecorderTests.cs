@@ -5,7 +5,7 @@ using EL.Testing;
 using Moq;
 using NUnit.Framework;
 
-namespace EL.InfluxDB.UnitTests
+namespace Emmersion.InfluxDB.UnitTests
 {
     internal class RecorderTests : With_an_automocked<InfluxRecorder>
     {

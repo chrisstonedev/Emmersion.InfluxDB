@@ -1,7 +1,7 @@
 using System.IO;
 using Microsoft.Extensions.Configuration;
 
-namespace EL.InfluxDB.IntegrationTests
+namespace Emmersion.InfluxDB.IntegrationTests
 {
     public class Settings
     {

@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace EL.InfluxDB.UnitTests
+namespace Emmersion.InfluxDB.UnitTests
 {
     public class DataSanitizerTests
     {

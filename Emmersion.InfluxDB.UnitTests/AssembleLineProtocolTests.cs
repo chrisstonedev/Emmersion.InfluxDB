@@ -2,7 +2,7 @@
 using EL.Testing;
 using NUnit.Framework;
 
-namespace EL.InfluxDB.UnitTests
+namespace Emmersion.InfluxDB.UnitTests
 {
     internal class AssembleLineProtocolTests : With_an_automocked<AssembleLineProtocol>
     {

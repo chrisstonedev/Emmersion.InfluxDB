@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Text;
 
-namespace EL.InfluxDB
+namespace Emmersion.InfluxDB
 {
     internal interface ISender
     {

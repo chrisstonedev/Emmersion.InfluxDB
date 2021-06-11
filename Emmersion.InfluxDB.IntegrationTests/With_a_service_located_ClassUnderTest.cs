@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
-namespace EL.InfluxDB.IntegrationTests
+namespace Emmersion.InfluxDB.IntegrationTests
 {
     public class With_a_service_located_ClassUnderTest<T> where T : class
     {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace EL.InfluxDB.IntegrationTests
+﻿namespace Emmersion.InfluxDB.IntegrationTests
 {
     internal class InfluxSettings : IInfluxSettings
     {

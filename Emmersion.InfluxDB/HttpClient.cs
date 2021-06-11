@@ -1,6 +1,6 @@
 ﻿using System.Net.Http;
 
-namespace EL.InfluxDB
+namespace Emmersion.InfluxDB
 {
     internal interface IHttpClient
     {
