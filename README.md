@@ -1,5 +1,9 @@
-# EL.InfluxDB
-A library for sending data to Influx.
+# Emmersion.InfluxDB
+A library for sending data to InfluxDB.
+
+This has been [open sourced](https://github.com/emmersion/engineering-at-emmersion#open-source)
+under the [MIT License](./LICENSE).
+
 
 ## Usage
 
@@ -25,6 +29,7 @@ However, you need to be careful about the total number of unique tags in the Inf
 A high cardinality of unique tags can impact performance; try to keep the number to 100 or less.
 
 (This means you should not use things like `accountId` or `userId` as tags, as there are too many possible unique values.)
+
 
 ## Version History
 

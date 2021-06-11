@@ -14,9 +14,7 @@ pool:
   vmImage: 'windows-2019'
 
 variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
+  - group: 'NuGetPublishing'
 
 name: 3.0$(Rev:.r)
 
@@ -56,9 +54,19 @@ steps:
     versioningScheme: 'byBuildNumber'
 
 - task: NuGetCommand@2
-  displayName: 'Publish'
+  displayName: 'Publish to internal feed'
   inputs:
     command: 'push'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
     nuGetFeedType: 'internal'
     publishVstsFeed: '2ee1cde5-9787-4e91-b498-e30a43c5d914'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publish to nuget.org'
+  inputs:
+    command: custom
+    custom: nuget
+    arguments: >
+      push $(Build.ArtifactStagingDirectory)/**/*.nupkg
+      -s https://api.nuget.org/v3/index.json
+      -k $(NuGetPublishingApiKey)
