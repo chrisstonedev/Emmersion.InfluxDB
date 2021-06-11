@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EL.InfluxDB\EL.InfluxDB.csproj" />
+    <ProjectReference Include="..\Emmersion.InfluxDB\Emmersion.InfluxDB.csproj" />
   </ItemGroup>
 
   <ItemGroup>

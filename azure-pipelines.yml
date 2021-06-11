@@ -30,7 +30,7 @@ steps:
 
 - task: FileTransform@1
   inputs:
-    folderPath: '$(System.DefaultWorkingDirectory)/**/EL.InfluxDB.IntegrationTests'
+    folderPath: '$(System.DefaultWorkingDirectory)/**/Emmersion.InfluxDB.IntegrationTests'
     fileType: 'json'
     targetFiles: '**/appsettings.json'
 
@@ -52,7 +52,7 @@ steps:
   displayName: 'Pack'
   inputs:
     command: 'pack'
-    packagesToPack: '**/EL.InfluxDB.csproj'
+    packagesToPack: '**/Emmersion.InfluxDB.csproj'
     versioningScheme: 'byBuildNumber'
 
 - task: NuGetCommand@2
