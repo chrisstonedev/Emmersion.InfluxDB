@@ -6,7 +6,6 @@ using NUnit.Framework;
 
 namespace Emmersion.InfluxDB.IntegrationTests
 {
-    [TestFixture]
     internal class With_a_base_sender_test : With_a_service_located_ClassUnderTest<Sender>
     {
         protected string ExecuteInfluxQuery(string query, string payload)
