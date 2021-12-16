@@ -10,12 +10,12 @@
     <PackageReference Include="nunit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.1.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="3.1.21" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="3.1.21" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.21" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.21" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.21" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.21" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="3.1.22" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="3.1.22" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.22" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.22" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.22" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.22" />
   </ItemGroup>
 
   <ItemGroup>
